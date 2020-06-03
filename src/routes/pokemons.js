@@ -7,27 +7,37 @@ pokemons.get('/', (req, res) => {
     const { pokemonName } = req.query;
 
     if (pokemonName) {
-        res.send(PokemonsService.getByName(pokemonName));
-    } else {
-        res.send(PokemonsService.getAll());
+        PokemonsService.getByName(pokemonName)
+            .then(pokemon => pokemon ? res.send(pokemon) : res.send(`Pokemon with name '${pokemonName}' was not found`))
+            .catch(err => res.send(err.message));
+    }
+    else {
+        PokemonsService.getAll()
+            .then(pokemons => pokemons.length === 0 ? res.send('No pokemons') : res.send(pokemons))
+            .catch(err => res.send(err.message));
     }
 });
 
 pokemons.get('/caught', (req, res) => {
-    res.send(PokemonsService.getCaughtPokemons());
+    PokemonsService.getCaughtPokemons()
+        .then(pokemons => pokemons.length === 0 ? res.send('No caught pokemons') : res.send(pokemons))
+        .catch(err => res.send(err.message));
 });
 
 pokemons.get('/:id', (req, res) => {
     const { id } = req.params;
 
-    res.send(PokemonsService.getById(id));
+    PokemonsService.getById(id)
+        .then(pokemon => res.send(pokemon))
+        .catch(err => res.send(err.message));
 });
 
-pokemons.post('/:id', (req, res) => {
-    const { id } = req.params;
+pokemons.post('/', (req, res) => {
     const { name, damage, creationDate, caught } = req.body;
 
-    res.send(PokemonsService.addPokemon({id: id, name: name, damage: damage, creationDate: creationDate, caught: caught}));
+    PokemonsService.addPokemon({name: name, damage: damage, creationDate: creationDate, caught: caught})
+        .then(pokemon => res.send(pokemon))
+        .catch(err => res.send(err.message));
 });
 
 pokemons.put('/:id', (req, res) => {
@@ -36,16 +46,22 @@ pokemons.put('/:id', (req, res) => {
    const { name, damage, creationDate, caught } = req.body;
 
    if (isCaught) {
-       res.send(PokemonsService.caughtPokemon(id, isCaught));
+       PokemonsService.caughtPokemon(id, isCaught)
+           .then(pokemon => res.send(pokemon))
+           .catch(err => res.send(err.message));
    } else {
-       res.send(PokemonsService.updatePokemon({id: id, name: name, damage: damage, creationDate: creationDate, caught: caught}));
+       PokemonsService.updatePokemon({id: id, name: name, damage: damage, creationDate: creationDate, caught: caught})
+           .then(pokemon => res.send(pokemon))
+           .catch(err => res.send(err.message));
    }
 });
 
-pokemons.delete('/:id', (req,res) => {
+pokemons.delete('/:id', (req, res) => {
    const { id } = req.params;
 
-   res.send(PokemonsService.deletePokemon(id));
+   PokemonsService.deletePokemon(id)
+       .then(pokemon => res.send(pokemon))
+       .catch(err => res.send(err.message));
 });
 
 module.exports = pokemons;
